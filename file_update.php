@@ -16,19 +16,13 @@
 	$DB = new mysql_db();
 	$connectid = $DB->sql_connect($mysql_host, $mysql_user , $mysql_password, $mysql_database);
 	
-	$returnJson = array();
-	
-	/*
 	$query_1 = $DB->query('SELECT update_time FROM update_time WHERE id=0');
 	
 	$row = mysql_fetch_assoc($query_1);
-	$returnJson = array(
-		'update_time' => $row['update_time']
-	);
-	*/
+	$update_time = $row['update_time'];
 	
 	$query2 = $DB->query('SELECT * FROM mods');
-	$numRows = $DB->get_num_rows($query2);
+	//$numRows = $DB->get_num_rows($query2);
 	
 	while ($row = mysql_fetch_assoc($query2)) {
 		$modsJson[$row['mod_id']] = array(
@@ -37,8 +31,7 @@
 			'css' => $row['css']
 		);
 	}
-	
-	
+
 	$dtd = $localesBlankJSON;
 	
 	$query3 = $DB->query('SELECT tn.mod_id, tn.locale, tn.txt AS ntxt, td.txt AS dtxt FROM mod_names AS tn INNER JOIN mod_descs AS td ON tn.mod_id_locale = td.mod_id_locale');
@@ -60,7 +53,10 @@
 		$dtd[$k] = implode('', $v);
 	}
 	
-	$modsJson = json_encode(array_values($modsJson));
+	$modsJson = json_encode(array(
+		'update_time' => $update_time,
+		'mods' => array_values($modsJson)
+	));
 	$dtdsJson = json_encode($dtd);
 	
 	
