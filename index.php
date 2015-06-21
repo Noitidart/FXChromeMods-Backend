@@ -69,6 +69,10 @@
 					});
 					THIS.nextId++;
 				};
+				
+				THIS.info = function() {
+					console.info(THIS.mods);
+				}
 			  });
 
 
@@ -101,8 +105,7 @@
 						Group
 					</span>
 					<span>
-						<select name="{{mod.id}}_group">
-							<option ng-repeat="id in fc.ids" value="{{id}}">{{id}}</option>
+						<select name="{{mod.id}}_group" data-ng-model="mod.group" data-ng-options="id for id in fc.ids">
 						</select>
 					</span>
 				</div>
@@ -110,20 +113,12 @@
 					<span>
 						Name
 					</span>
-					<div>
-						<span>
-							Locale
-						</span>
-						<span>
-							Value
-						</span>
-					</div>
 					<div ng-repeat="(key, value) in mod.name">
 						<span>
 							{{key}}
 						</span>
 						<span>
-							<input type="text" name="{{mod.id}}_name_{{key}}" value="{{value}}">
+							<input type="text" ng-model="mod.name[key]">
 						</span>
 					</div>
 				</div>
@@ -131,20 +126,12 @@
 					<span>
 						Description
 					</span>
-					<div>
-						<span>
-							Locale
-						</span>
-						<span>
-							Value
-						</span>
-					</div>
 					<div ng-repeat="(key, value) in mod.desc">
 						<span>
 							{{key}}
 						</span>
 						<span>
-							<input type="text" name="{{mod.id}}_desc_{{key}}" value="{{value}}">
+							<input type="text" ng-model="mod.desc[key]">
 						</span>
 					</div>
 				</div>
@@ -153,11 +140,12 @@
 					CSS:
 					</span>
 					<span>
-						<textarea name="{{mod.id}}_css}}" style="width:150px; height:75px;">{{mod.css}}</textarea>
+						<textarea style="width:150px; height:75px;" ng-model="mod.css"></textarea>
 					</span>
 				</div>
 			</div>
 			<input type="button" value="Add" ng-click="fc.add()">
+			<input type="button" value="Info" ng-click="fc.info()">
 		</form>
 	</body>
 </html>
