@@ -70,9 +70,18 @@
 					THIS.nextId++;
 				};
 				
+				THIS.delete = function(id) {
+					for (var i=0; i<THIS.mods.length; i++) {
+						if (THIS.mods[i].id == id) {
+							THIS.mods.splice(i, 1);
+							return;
+						}
+					}
+				};
+				
 				THIS.info = function() {
 					console.info(THIS.mods);
-				}
+				};
 			  });
 
 
@@ -85,9 +94,14 @@
 			</label> 
 			<input type="text" name="username">
 			<div>
-				Hints:
-				<br>
-				To make a group,
+				GUIDE:
+				<ul>
+					<li>
+						To make something file browsable in the addon front end, just in clude <pre style="display:inline;">%FILE.PATH%</pre> or <pre style="display:inline;">%FILE.NAME%</pre> in the CSS of it.
+					</li>
+					<li>
+						To make a select box in the addon front end, then set the group to the id of which you want it to belong.	
+					</li>
 			</div>
 			<hr>
 			<div ng-repeat="mod in fc.mods">
@@ -97,7 +111,9 @@
 					</span>
 					<span>
 						{{mod.id}}
-						<input type="hidden" name="{{mod.id}}_id" value="{{mod.id}}">
+					</span>
+					<span>
+						<input type="button" ng-click="fc.delete(mod.id)" value="Delete">
 					</span>
 				</div>
 				<div>
@@ -105,8 +121,7 @@
 						Group
 					</span>
 					<span>
-						<select name="{{mod.id}}_group" data-ng-model="mod.group" data-ng-options="id for id in fc.ids">
-						</select>
+						<select data-ng-model="mod.group" data-ng-options="id for id in fc.ids"></select>
 					</span>
 				</div>
 				<div>
