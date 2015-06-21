@@ -40,8 +40,8 @@
 		print_r($row);
 		print '<br>';
 		*/
-		$dtd[$row['locale']][] = '<!ENTITY mods.name.' . $row['mod_id'] . ' \'' . $row['ntxt'] . '\'>';
-		$dtd[$row['locale']][] = '<!ENTITY mods.desc.' . $row['mod_id'] . ' \'' . $row['dtxt'] . '\'>';
+		$dtd[$row['locale']][] = 'mods.name.' . $row['mod_id'] . '=' . $row['ntxt'];
+		$dtd[$row['locale']][] = 'mods.desc.' . $row['mod_id'] . '=' . $row['dtxt'];
 	}
 	/*
 	print '<br>';
@@ -50,7 +50,7 @@
 	print '<br>';
 	*/
 	foreach ($dtd as $k=>$v) {
-		$dtd[$k] = implode('', $v);
+		$dtd[$k] = implode('\n', $v);
 	}
 	
 	$modsJson = json_encode(array(
@@ -61,7 +61,7 @@
 	
 	
 	$returnJson['mods.json'] = $modsJson;
-	$returnJson['mods.dtd'] = $dtdsJson;
+	$returnJson['mods.props'] = $dtdsJson;
 	
 	print json_encode($returnJson); exit();
 ?>
