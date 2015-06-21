@@ -4,17 +4,20 @@
 		<title>FXChromeMods Backend</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
 		<meta name="description" content="Manage the modifications loaded into FXChromeMods" />
-		<link rel="shortcut icon" href="icon32.png" type="image/png" />
+		<link rel="shortcut icon" href="/icon32.png" type="image/png" />
 		<script src="angular-1-3-16_min.js"></script>
 		<script>
-			var localesBlankJSON = {
+			var localesBlankJSON = { // update this obj with keys of locales i want supported
 				'en-US': '',
 				'en-GB': ''
 			};
 			var localesBlankSTRINGIFY = JSON.stringify(localesBlankJSON);
+			
 			angular.module('fxchrome', [])
-			  .controller('FormController', function() {
+			  .controller('FormController', function($http) {
+
 				var THIS = this;
+				THIS.username = '';
 				THIS.ids = [];
 				THIS.mods = [
 					{
@@ -51,6 +54,17 @@
 					if (THIS.mods[i].id >= THIS.nextId) {
 						THIS.nextId = THIS.mods[i].id + 1;
 					}
+					for (var locale in THIS.mods[i].name) {
+						if (!(locale in localesBlankJSON)) {
+							//local no longer supported, so delete the key
+							delete THIS.mods[i].name[locale];
+						}
+					}
+					for (var locale in localesBlankJSON) {
+						if (!(locale in THIS.mods[i].name)) {
+							THIS.mods[i].name[locale] = '';
+						}
+					}
 				}
 				for (var i=0; i<THIS.mods.length; i++) {
 					if (THIS.ids.indexOf(THIS.mods[i].group) == -1) {
@@ -79,9 +93,49 @@
 					}
 				};
 				
+				THIS.submit_update = function() {
+					var update_obj = {
+						username: THIS.username,
+						timestamp: Date.now(),
+						mods: THIS.mods
+					};
+					
+					var json_str = angular.toJson(update_obj);
+					console.info(json_str);
+
+					$http.post('/submit.php', {
+						json: json_str
+					}).
+					success(function(response) {
+						console.log('got back succcessful status code, response:', response);
+						if (typeof response != 'object') {
+							alert('Update failed on server side, JSON object not returned, see browser console for more information.\n\n' + response);
+						} else {
+							if (response.error) {
+								alert(response.error);
+							} else {
+								if (response.ok) {
+									alert(response.ok);
+								} else {
+									alert('Update Successful');
+									// reload page, as if an id went was submited as something but ogt incremented due to duplicate, then the reloaded page will have the new id
+									window.location.reload();
+								}
+							}
+						}
+					}).
+					error(function(response) {
+						//$scope.codeStatus = response || "Request failed";
+						console.error('Connection Failed - See browser console for details on response object. Response:', response);
+						alert('Connection Failed - See browser console for details on response object. ' + JSON.stringify(response));
+					});
+					
+				};
+				
 				THIS.info = function() {
 					console.info(THIS.mods);
 				};
+				
 			  });
 
 
@@ -92,7 +146,7 @@
 			<label>
 				Username:
 			</label> 
-			<input type="text" name="username">
+			<input type="text" name="username" ng-model="fc.username">
 			<div>
 				GUIDE:
 				<ul>
@@ -158,9 +212,14 @@
 						<textarea style="width:150px; height:75px;" ng-model="mod.css"></textarea>
 					</span>
 				</div>
+				<hr style="width:200px; float:left;">
+				<br>
 			</div>
 			<input type="button" value="Add" ng-click="fc.add()">
 			<input type="button" value="Info" ng-click="fc.info()">
+			<br>
+			<br>
+			<input type="button" value="Update" ng-click="fc.submit_update()" style="width:200px;">
 		</form>
 	</body>
 </html>
