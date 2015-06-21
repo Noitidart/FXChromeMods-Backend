@@ -1,11 +1,51 @@
+<?php
+	// connect to database
+	require('mysql_db.php');
+
+	$mysql_host = 'mysql7.000webhost.com';
+	$mysql_database = 'a4606090_main';
+	$mysql_user = 'a4606090_noit';
+	$mysql_password = 'Datemppw87';
+
+	$DB = new mysql_db();
+	$connectid = $DB->sql_connect($mysql_host, $mysql_user , $mysql_password, $mysql_database);
+	
+	$query_1 = $DB->query('SELECT * FROM mods');
+	$numRows = $DB->get_num_rows($query_1);
+	
+	$modsJson = array();
+	
+	while ($row = mysql_fetch_assoc($query_1)) {
+		$modsJson[$row['mod_id']] = array(
+			'id' => $row['mod_id'],
+			'group' => $row['group_id'],
+			'css' => $row['css'],
+			'name' => array(),
+			'desc' => array()
+		);
+	}
+	
+	$query2 = $DB->query('SELECT tn.mod_id, tn.locale, tn.txt AS ntxt, td.txt AS dtxt FROM mod_names AS tn INNER JOIN mod_descs AS td ON tn.mod_id_locale = td.mod_id_locale');
+	while ($row = mysql_fetch_assoc($query2)) {
+		//print_r($row);
+		//print '<br>';
+		$modsJson[$row['mod_id']]['name'][$row['locale']] = $row['ntxt'];
+		$modsJson[$row['mod_id']]['desc'][$row['locale']] = $row['dtxt'];
+	}
+	
+	$modsJson = json_encode(array_values($modsJson));
+	
+	//print $modsJson;
+?>
 <!doctype html>
 <html ng-app="fxchrome">
 	<head>
 		<title>FXChromeMods Backend</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
 		<meta name="description" content="Manage the modifications loaded into FXChromeMods" />
-		<link rel="shortcut icon" href="/icon32.png" type="image/png" />
+		<link rel="shortcut icon" href="icon32.png" type="image/png" />
 		<script src="angular-1-3-16_min.js"></script>
+		<script src="angular-cookie-1-3-16_min.js"></script>
 		<script>
 			var localesBlankJSON = { // update this obj with keys of locales i want supported
 				'en-US': '',
@@ -13,12 +53,14 @@
 			};
 			var localesBlankSTRINGIFY = JSON.stringify(localesBlankJSON);
 			
-			angular.module('fxchrome', [])
-			  .controller('FormController', function($http) {
+			angular.module('fxchrome', [/*'ngCookie'*/])
+			  .controller('FormController', ['$http', /*'$cookies',*/ function($http/*, $cookies*/) {
 
 				var THIS = this;
 				THIS.username = '';
 				THIS.ids = [];
+				THIS.mods = <?php print $modsJson ?>;
+				/*
 				THIS.mods = [
 					{
 						id: 0,
@@ -47,7 +89,7 @@
 						group: 1
 					}
 				];
-				
+				*/
 				THIS.nextId = 0;
 				for (var i=0; i<THIS.mods.length; i++) {
 					THIS.ids.push(THIS.mods[i].id);
@@ -118,9 +160,8 @@
 									alert(response.ok);
 								} else {
 									alert('Update Successful');
-									// reload page, as if an id went was submited as something but ogt incremented due to duplicate, then the reloaded page will have the new id
-									window.location.reload();
 								}
+								window.location.reload(); // reload page, as if an id went was submited as something but ogt incremented due to duplicate, then the reloaded page will have the new id
 							}
 						}
 					}).
@@ -136,7 +177,7 @@
 					console.info(THIS.mods);
 				};
 				
-			  });
+			  }]);
 
 
 		</script>
