@@ -43,7 +43,7 @@
 		<title>FXChromeMods Backend</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=us-ascii" />
 		<meta name="description" content="Manage the modifications loaded into FXChromeMods" />
-		<link rel="shortcut icon" href="icon32.png" type="image/png" />
+		<link rel="shortcut icon" href="https://github.com/Noitidart/FXChromeMods-Backend/blob/master/icon32.png?raw=true" type="image/png" />
 		<script src="angular-1-3-16_min.js"></script>
 		<script src="angular-cookie-1-3-16_min.js"></script>
 		<script>
@@ -94,7 +94,7 @@
 				for (var i=0; i<THIS.mods.length; i++) {
 					THIS.ids.push(THIS.mods[i].id);
 					if (THIS.mods[i].id >= THIS.nextId) {
-						THIS.nextId = THIS.mods[i].id + 1;
+						THIS.nextId = parseInt(THIS.mods[i].id) + 1;
 					}
 					for (var locale in THIS.mods[i].name) {
 						if (!(locale in localesBlankJSON)) {
@@ -257,7 +257,7 @@
 				<br>
 			</div>
 			<input type="button" value="Add" ng-click="fc.add()">
-			<input type="button" value="Info" ng-click="fc.info()">
+			<input type="button" value="Info" ng-click="fc.info()" style="display:none;">
 			<br>
 			<br>
 			<input type="button" value="Update" ng-click="fc.submit_update()" style="width:200px;">
